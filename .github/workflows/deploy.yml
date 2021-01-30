@@ -1,5 +1,5 @@
 ---
-name: Deploy
+1name: Deploy
 
 on:
   release:
