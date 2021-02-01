@@ -1,6 +1,7 @@
 ---
 name: Deploy
 
+# yamllint disable-line rule:truthy
 on:
   release:
     types:
@@ -102,20 +103,22 @@ jobs:
         uses: docker/login-action@v1.8.0
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PASSWORD }}
       - name: 🚀 Build and push
         uses: docker/build-push-action@v2.2.2
         with:
           push: true
+          # yamllint disable rule:line-length
           tags: |
-            ghcr.io/${{ needs.information.outputs.slug }}/${{ matrix.architecture }}:${{ needs.information.outputs.environment }}
-            ghcr.io/${{ needs.information.outputs.slug }}/${{ matrix.architecture }}:${{ needs.information.outputs.version }}
+            ghcr.io/hassio-addons/${{ needs.information.outputs.slug }}/${{ matrix.architecture }}:${{ needs.information.outputs.environment }}
+            ghcr.io/hassio-addons/${{ needs.information.outputs.slug }}/${{ matrix.architecture }}:${{ needs.information.outputs.version }}
+          # yamllint enable rule:line-length
           context: ${{ needs.information.outputs.target }}
           file: ${{ needs.information.outputs.target }}/Dockerfile
           cache-from: |
             type=local,src=/tmp/.docker-cache
-            ghcr.io/${{ needs.information.outputs.slug }}/${{ matrix.architecture }}:edge
+            ghcr.io/hassio-addons/${{ needs.information.outputs.slug }}/${{ matrix.architecture }}:edge
           cache-to: type=local,mode=max,dest=/tmp/.docker-cache
           platforms: ${{ steps.flags.outputs.platform }}
           build-args: |
@@ -142,7 +145,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.DISPATCH_TOKEN }}
-          repository: lrybak/hassio-addons-edge
+          repository: hassio-addons/repository-edge
           event-type: update
           client-payload: >
             {
@@ -168,7 +171,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.DISPATCH_TOKEN }}
-          repository: lrybak/hassio-addons-beta
+          repository: hassio-addons/repository-beta
           event-type: update
           client-payload: >
             {
@@ -192,7 +195,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.DISPATCH_TOKEN }}
-          repository: lrybak/hassio-addons
+          repository: hassio-addons/repository
           event-type: update
           client-payload: >
             {
